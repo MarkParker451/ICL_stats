@@ -1,0 +1,114 @@
+---
+title: "Wk3"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(here)
+library(ggplot2)
+library(dplyr)
+```
+# READ
+## Read in MOOC cancer data csv
+```{r}
+cd <- read.csv(here("Input","cancer data for MOOC 1.csv"))
+```
+
+
+# EXPLORE
+## Age
+Age is a continuous variable
+```{r}
+summary(cd$age)
+
+hist(cd$age, 
+     main = "Age frequency distribution", 
+     xlab = "Age",
+     density = 5, 
+     col = "blue")
+```
+
+
+## BMI
+BMI is a continuous variable
+```{r}
+summary(cd$bmi)
+
+hist(cd$bmi, 
+     breaks = length(unique(round(cd$bmi,0))),
+     main = "BMI frequency distribution", 
+     xlab = "BMI",
+     density = 50, 
+     col = "blue")
+```
+
+
+## Smoking
+Smoking is a categorical value
+```{r}
+smoking_optons <- unique(cd$smoking)
+
+table(cd$smoking)
+```
+
+
+## fruit
+fruit is a continuous variable
+```{r}
+summary(cd$fruit)
+
+hist(cd$fruit, 
+     breaks = length(unique(round(cd$fruit,0))),
+     main = "fruit frequency distribution", 
+     xlab = "fruit",
+     density = 50, 
+     col = "blue")
+```
+
+# TRANSFORM
+## Fruit and veg
+```{r}
+cd$fruit_and_veg <- cd$fruit + cd$veg
+
+hist(cd$fruit_and_veg)
+```
+
+
+
+## Dichotomise BMI
+A healthy BMI is generally considered to lie between 18.5 and 24.9 inclusive, meaning that 25 or over or 18.4 or under would be "not normal".
+```{r}
+cd <- cd %>% 
+  mutate(BMI_cat = case_when(
+    is.na(bmi) ~ NA,
+    between(bmi, 18.5, 24.9) ~ "normal",
+    TRUE ~ "not normal"
+  ))
+
+```
+
+
+# VISUALISE
+```{r}
+pl_fruit_and_veg <- ggplot(data = cd) +
+  
+  geom_histogram(aes(x = fruit_and_veg), 
+                 bins = 10, 
+                 fill = "lightblue", 
+                 colour = "black"
+                 ) +
+  
+  scale_x_continuous(breaks = seq(from = 0, to = 12, by = 1)) +
+  
+  labs(title = "Fruit and vegetable consumption", 
+       x = "Daily portions fruit + vegetables") +
+  
+  theme_classic() +
+  
+  theme(axis.title.y = element_blank())
+
+pl_fruit_and_veg
+```
